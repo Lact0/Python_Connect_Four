@@ -125,11 +125,14 @@ class monteCarloTree():
     board = np.copy(lastNode.board)
     toGo = lastNode.player
     while (winner := checkWin(board)) is None:
-      #possibleMoves = np.unique(np.where(board == 0)[0])
-      #move = np.random.choice(possibleMoves)
-      move = minimax(board, 1, toGo)[1]
+      possibleMoves = np.unique(np.where(board == 0)[0])
+      move = np.random.choice(possibleMoves)
+      #move = minimax(board, 1, toGo)[1]
       sign = -1 + toGo * 2
-      board = makeMove(board, sign, move)
+      newBoard = makeMove(board, sign, move)
+      if newBoard is False:
+        print(board, newBoard, move, sign)
+      board = newBoard
       toGo = not toGo
 
     currentNode = this.root

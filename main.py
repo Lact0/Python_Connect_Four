@@ -87,3 +87,5 @@ def playMonte(isFirst = True, moveTime = 30):
     if checkWin(board) is not None:
       print('You Lost! (or Tie, I\'m too lazy to check.)')
       break
+
+playMonte()

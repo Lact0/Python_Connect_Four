@@ -1,0 +1,13 @@
+Data for MCTS where player goes first and plays 3
+Move  Probability Iterations
+4     48.33       373
+5     50.00       391
+3     48.33       395
+3     48.33       395
+0     50.00       403
+0     49.12       404
+6     49.07       411
+4     47.62       428
+4     50.00       433
+4     49.31       444
+4     49.38       476
