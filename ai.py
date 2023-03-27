@@ -1,12 +1,19 @@
+from sqlitedict import SqliteDict
 from connect4 import *
+import json
 import math
+
+treePath = "Database/tree.sqlite"
+db = SqliteDict(treePath, outer_stack=False)
+#Board to key is board.tobytes()
+#Key to Board is np.reshape(np.frombuffer(key), (7, 6))
+#{parents: [], player: bool, wins: int, visits: int, children: {}, terminal: bool}
 
 def value(board):
   state = checkWin(board)
   if state is not None:
     return checkWin(board) * 10
   return 0
-
 
 def minimax(board, depth, maxPlayer = False, a = -100, b = 100, memo = {}):
   
@@ -45,9 +52,6 @@ def minimax(board, depth, maxPlayer = False, a = -100, b = 100, memo = {}):
   memo[key] = best
   
   return best
-
-
-
 
 class monteCarloNode():
   def __init__(this, board, player):
@@ -145,3 +149,106 @@ class monteCarloTree():
         currentNode.wins += 1
       if move is not None:
         currentNode = currentNode.children[move]
+
+def dbStep(rootBoard):
+  key, board = dbSelectNode(rootBoard)
+  dbExpand(key, board)
+  winner = dbSimulate(board, db[key]['player'])
+  dbBackpropSim(key, winner)
+  pass
+
+def dbExpand(key, rootBoard):
+  node = db[key]
+  possibleMoves = np.unique(np.where(rootBoard == 0)[0])
+  sign = -1 + 2 * node['player']
+  for move in possibleMoves:
+    newBoard = makeMove(rootBoard, sign, move)
+    newKey = newBoard.tobytes()
+    node['children'][move] = newKey
+    if newKey in db:
+      #NEED TO PROPOGATE THE CHILD'S WINS AND VISITS BACK UPWARDS
+      db[newKey]['parents'].append(key)
+      continue
+    child = {'parents': [key], 'player': not node['player'], 'wins': 0, 'visits': 0,
+            'children': {}, 'terminal': checkWin(newBoard)}
+    db[newKey] = child
+  db[key] = node
+
+def resetTree(areYouSure):
+  if not areYouSure:
+    print('Insufficient Parameters, you idiot.')
+  for key in db:
+    del db[key]
+  root = {'parents': [], 'player': True, 'wins': 0, 'visits': 0,
+            'children': {}, 'terminal': None}
+  db[makeBoard().tobytes()] = root
+  print('Tree Wiped.')
+
+def dbSelectNode(rootBoard, c = 2 ** .5):
+  key = rootBoard.tobytes()
+  if key not in db:
+    print(rootBoard)
+  node = db[key]
+  while len(node['children']) > 0:
+    maxValue = -1
+    maxKey = None
+    for move in node['children']:
+      childKey = node['children'][move]
+      childNode = db[childKey]
+      winRate = childNode['wins'] / max(1, childNode['visits'])
+      ucb = math.log(node['visits']) / max(1, childNode['visits'])
+      ucb = (ucb ** .5) * c
+      if ucb > maxValue:
+        maxValue = ucb
+        maxKey = childKey
+    node = db[maxKey]
+    key = maxKey
+  return (key, np.reshape(np.frombuffer(key), (7, 6)))
+
+def dbSimulate(board, player):
+  while (outcome := checkWin(board)) is None:
+    sign = -1 + 2 * player
+    possibleMoves = np.unique(np.where(board == 0)[0])
+    move = np.random.choice(possibleMoves)
+    board = makeMove(board, sign, move)
+    player = not player
+  return outcome
+
+def dbBackpropSim(key, winner):
+  queue = [key]
+  while len(queue) > 0:
+    newQueue = []
+    for key in queue:
+      node = db[key]
+      sign = -1 + 2 * node['player']
+      node['visits'] += 1
+      if winner == 0:
+        node['wins'] += .5
+      elif winner == sign:
+        node['wins'] += 1
+      for parentKey in node['parents']:
+        newQueue.append(parentKey)
+      db[key] = node
+    queue = newQueue  
+    
+def dbBackpropNode(parentKey, childKey):
+  pass
+
+def dbBestMove(board):
+  key = board.tobytes()
+  children = db[key]['children']
+  maxMove = -1
+  maxScore = 2
+  for move in children:
+    childKey = db[key]['children'][move]
+    childNode = db[childKey]
+    score = childNode['wins'] / max(1, childNode['visits'])
+    if score < maxScore:
+      maxScore = score
+      maxMove = move
+  return maxMove
+
+def dbGetConfidence(board):
+  key = board.tobytes()
+  node = db[key]
+  return round(node['wins'] / node['visits'] * 100, 2)

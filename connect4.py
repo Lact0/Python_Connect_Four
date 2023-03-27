@@ -70,3 +70,4 @@ def setupScreen():
 def drawGrid(board):
   plt.imshow(np.flip(np.transpose(board), 0))
   plt.show(block=False)
+  #plt.pause(0.05)
