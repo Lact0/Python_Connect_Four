@@ -1,9 +1,18 @@
-#https://pythonhosted.org/pickleDB/
+from visuals import *
 from ai import *
-
+#from bitAi import *
 import time
 
-setupScreen()
+board = makeBoard()
+board = makeMove(board, 1, 3)
+board = makeMove(board, -1, 2)
+board = makeMove(board, 1, 2)
+board = makeMove(board, -1, 3)
+
+#dispBoard(board, 1, screen)
+#move = getConnectFourDecision(screen)
+#board = makeMove(board, 1, move)
+#dispBoard(board, 2, screen)
 
 def playGame(isFirst = True):
   board = makeBoard()
@@ -43,25 +52,18 @@ def playGame(isFirst = True):
 def playMonte(isFirst = True, moveTime = 30):
   board = makeBoard()
   tree = monteCarloTree(board, True)
-  drawGrid(board)
+  dispBoard(board, 'Your' if isFirst else 'AI', screen)
   start = True
   sign = -1 + 2 * isFirst
   percent = 50
   while True:
     if isFirst or (not start):
-      print('Make Move:')
-      move = None
-      possibleMoves = np.unique(np.where(board == 0)[0])
-      while True:
-        move = input()
-        if move.isdigit() and int(move) < 7 and (int(move) in possibleMoves):
-          move = int(move)
-          break
-        print('INCORRECT, YOU IDIOT')
+      move = getConnectFourDecision(screen)
       board = makeMove(board, sign, move)
       tree.makeMove(move)
-      drawGrid(board)
+      dispBoard(board, 'AI', screen)
       if checkWin(board) is not None:
+        curses.endwin()
         print('You Won! (or Tie, I\'m too lazy to check.)')
         break
     else:
@@ -85,11 +87,12 @@ def playMonte(isFirst = True, moveTime = 30):
         print(move, tree.root.children[move].board)
     board = newBoard
     tree.makeMove(move)
-    drawGrid(board)
+    dispBoard(board, 'Player', screen)
     if checkWin(board) is not None:
+      curses.endwin()
       print('You Lost! (or Tie, I\'m too lazy to check.)')
       break
-
+  return board
 #playMonte()
 
 def playDbMonte(isFirst = True, moveTime = 30):

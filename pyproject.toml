@@ -13,6 +13,8 @@ urllib3 = "^1.26.12"
 matplotlib = "^3.7.0"
 pickleDB = "^0.9.2"
 sqlitedict = "^2.1.0"
+pygame = "^2.3.0"
+image = "^1.5.33"
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.6.2"

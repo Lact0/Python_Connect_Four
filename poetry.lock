@@ -61,6 +61,17 @@ dev = ["pytest", "cogapp", "pre-commit", "wheel"]
 tests = ["pytest"]
 
 [[package]]
+name = "asgiref"
+version = "3.6.0"
+description = "ASGI specs, helper code, and adapters"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
+
+[[package]]
 name = "async-timeout"
 version = "4.0.2"
 description = "Timeout context manager for asyncio programs"
@@ -187,6 +198,23 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
+name = "django"
+version = "4.2"
+description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+asgiref = ">=3.6.0,<4"
+sqlparse = ">=0.3.1"
+tzdata = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+argon2 = ["argon2-cffi (>=19.1.0)"]
+bcrypt = ["bcrypt"]
+
+[[package]]
 name = "flask"
 version = "2.2.2"
 description = "A simple framework for building complex web applications."
@@ -241,6 +269,19 @@ description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "image"
+version = "1.5.33"
+description = "Django application that provides cropping, resizing, thumbnailing, overlays and masking for images and videos with the ability to set the center of attention,"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = "*"
+pillow = "*"
+six = "*"
 
 [[package]]
 name = "iso8601"
@@ -453,6 +494,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pygame"
+version = "2.3.0"
+description = "Python Game Development"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -624,6 +673,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "sqlparse"
+version = "0.4.3"
+description = "A non-validating SQL parser."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -646,6 +703,14 @@ description = "Backported and Experimental Type Hints for Python 3.5+"
 category = "main"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "tzdata"
+version = "2023.3"
+description = "Provider of IANA time zone data"
+category = "main"
+optional = false
+python-versions = ">=2"
 
 [[package]]
 name = "ujson"
@@ -713,13 +778,14 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "13e084ffae3d9cb6ba047aa5e799e0659c20ba1836395685d79d0e4c129864b1"
+content-hash = "f840a5526146045f05af7d561e51ea68f13c321486d9556e3966a4b9f55ac1ec"
 
 [metadata.files]
 aiohttp = []
 aiosignal = []
 argon2-cffi = []
 argon2-cffi-bindings = []
+asgiref = []
 async-timeout = []
 attrs = []
 certifi = []
@@ -731,10 +797,12 @@ contourpy = []
 cryptography = []
 cycler = []
 debugpy = []
+django = []
 flask = []
 fonttools = []
 frozenlist = []
 idna = []
+image = []
 iso8601 = []
 itsdangerous = []
 jedi = []
@@ -755,6 +823,7 @@ protobuf = []
 pycparser = []
 pycryptodomex = []
 pyflakes = []
+pygame = []
 pyparsing = []
 pyseto = []
 python-dateutil = []
@@ -766,9 +835,11 @@ requests = []
 rope = []
 six = []
 sqlitedict = []
+sqlparse = []
 toml = []
 tomli = []
 typing-extensions = []
+tzdata = []
 ujson = []
 urllib3 = []
 werkzeug = []

@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
 def makeBoard():
@@ -58,14 +57,8 @@ def getLegal(board, action):
   return False
 
 def setupScreen():
-  mng = plt.get_current_fig_manager()
-  mng.full_screen_toggle()
-  ax = plt.gca()
-  ax.set_xticks(np.arange(-.5, 10, 1))
-  ax.set_yticks(np.arange(-.5, 10, 1))
-  ax.set_xticklabels(np.arange(0, 11, 1))
-  ax.set_yticklabels(np.arange(6, -5, -1))
-  ax.grid(color='w', linestyle='-', linewidth=1)
+  pygame.init()
+  display_screen = pygame.display.set_mode((800,600))
 
 def drawGrid(board):
   plt.imshow(np.flip(np.transpose(board), 0))
