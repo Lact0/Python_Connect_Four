@@ -10,7 +10,7 @@ SPACE = 32
 ENTER = 10
 
 screen = curses.initscr()
-#curses.resizeterm(34, 58)
+curses.resizeterm(34, 58)
 curses.curs_set(0)
 curses.noecho()
 ROWS, COLS = screen.getmaxyx()
@@ -42,25 +42,29 @@ class Menu():
   def addImage(this, title, image):
     this.nodes[title].setImage(image)
   
-  def run(this, screen):
+  def run(this, screen = screen):
     currentNode = this.nodes[this.rootNodeTitle]
     while True:
       options = currentNode.draw(screen)
       selected = 0
-      screen.addstr(options[selected][0], options[selected][1], '>')
-      screen.refresh()
-      while (inp := screen.getch()) != ENTER:
-        previous = selected
-        if inp == DOWN:
-          selected += 1
-        if inp == UP:
-          selected -= 1
-        selected += len(options)
-        selected %= len(options)
-        screen.addstr(options[previous][0], options[previous][1], ' ')
+      if currentNode.func is  None:
         screen.addstr(options[selected][0], options[selected][1], '>')
         screen.refresh()
-        
+        while (inp := screen.getch()) != ENTER and inp != SPACE:
+          previous = selected
+          if inp == DOWN:
+            selected += 1
+          if inp == UP:
+            selected -= 1
+          selected += len(options)
+          selected %= len(options)
+          screen.addstr(options[previous][0], options[previous][1], ' ')
+          screen.addstr(options[selected][0], options[selected][1], '>')
+          screen.refresh()
+      else:
+        currentNode.func()
+        screen.getch()
+        selected = len(options) - 1
       newScreen = options[selected][2]
       if newScreen == 'Back':
         currentNode = this.nodes[currentNode.parent]
@@ -70,7 +74,6 @@ class Menu():
       else:
         currentNode = this.nodes[options[selected][2]]
         
-
 class MenuScreen():
   def __init__(this, title, parent = None):
     this.title = title
@@ -79,6 +82,7 @@ class MenuScreen():
     this.img = None
     this.imgHeight = 0
     this.showTitle = True
+    this.func = None
 
   def setImage(this, image):
     this.imgHeight = image.count('\n') - 2
@@ -87,7 +91,7 @@ class MenuScreen():
   def addChild(this, childName):
     this.children.append(childName)
 
-  def draw(this, screen):
+  def draw(this, screen = screen):
     screen.clear()
     
     rows, cols = screen.getmaxyx()
@@ -118,12 +122,9 @@ class MenuScreen():
     
     return optionInfo
 
-def dispBoard(board, turn, screen):
+def dispBoard(board, topText, screen = screen):
   screen.clear()
-
-  turnText = turn +  ' Turn'
-  turnStartPos = int((COLS - len(turnText)) / 2)
-  screen.addstr(0, turnStartPos, turnText)
+  centerText(0, topText)
   
   for i in range(7):
     for j in range(6):
@@ -139,11 +140,11 @@ def dispBoard(board, turn, screen):
   screen.addstr(25, 0, connectFourBar.replace('\n', ''))
   screen.refresh()
 
-def getConnectFourDecision(screen):
-  pos = 0
-  screen.addstr(26, 4, '/\\')
+def getConnectFourDecision(screen = screen):
+  pos = 3
+  screen.addstr(26, 28, '/\\')
   screen.refresh()
-  while (inp := screen.getch()) != ENTER:
+  while (inp := screen.getch()) != ENTER and inp != SPACE:
     if inp == LEFT:
       screen.addstr(26, pos * 8 + 4, '  ')
       pos += 6
@@ -155,14 +156,19 @@ def getConnectFourDecision(screen):
       pos %= 7
       screen.addstr(26, pos * 8 + 4, '/\\')
     screen.refresh()
+  screen.addstr(26, pos * 8 + 4, '  ')
   return pos
+
+def centerText(row, text, screen = screen):
+  startPos = int((COLS - len(text)) / 2)
+  screen.addstr(row, startPos, text)
 
 connectFourMenu = Menu('Connect Four')
 connectFourMenu.addScreen('Connect Four', 'Classic')
 connectFourMenu.nodes['Connect Four'].showTitle = False
 connectFourMenu.addScreen('Connect Four', 'Quantum')
-connectFourMenu.addScreen('Classic', 'Minimax Ai')
 connectFourMenu.addScreen('Classic', 'Monte Carlo Ai')
+connectFourMenu.addScreen('Classic', 'Minimax Ai')
 connectFourMenu.addScreen('Quantum', 'Vs. Self')
 connectFourMenu.addImage('Connect Four', titleScreenImage)
 #connectFourMenu.run(screen)
